@@ -146,6 +146,7 @@ const middlewares: Middleware[] = [
 			if (response !== undefined) {
 				res.stopTiming(timingName)
 				res.sendSuccess(response)
+				break
 			}
 		}
 	},
