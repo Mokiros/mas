@@ -84,28 +84,32 @@ export class CustomResponse extends ServerResponse {
 		}
 		this.startTiming('encoding', 'Data encoding')
 		let CompressedData: Buffer | string | null = null
-		switch (this.encoding) {
-			case 'gzip':
-				CompressedData = zlib.gzipSync(data)
-				this.setHeader('Content-Encoding', 'gzip')
-				break
-			case 'br':
-				CompressedData = zlib.brotliCompressSync(data, {
-					chunkSize: 32 * 1024,
-					params: {
-						[zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-						[zlib.constants.BROTLI_PARAM_QUALITY]: 4,
-						[zlib.constants.BROTLI_PARAM_SIZE_HINT]: data.length,
-					},
-				})
-				this.setHeader('Content-Encoding', 'br')
-				break
-			case 'deflate':
-				CompressedData = zlib.deflateSync(data)
-				this.setHeader('Content-Encoding', 'deflate')
-				break
-			default:
-				CompressedData = data
+		if (data.length > 1024) {
+			switch (this.encoding) {
+				case 'gzip':
+					CompressedData = zlib.gzipSync(data)
+					this.setHeader('Content-Encoding', 'gzip')
+					break
+				case 'br':
+					CompressedData = zlib.brotliCompressSync(data, {
+						chunkSize: 32 * 1024,
+						params: {
+							[zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+							[zlib.constants.BROTLI_PARAM_QUALITY]: 4,
+							[zlib.constants.BROTLI_PARAM_SIZE_HINT]: data.length,
+						},
+					})
+					this.setHeader('Content-Encoding', 'br')
+					break
+				case 'deflate':
+					CompressedData = zlib.deflateSync(data)
+					this.setHeader('Content-Encoding', 'deflate')
+					break
+				default:
+					CompressedData = data
+			}
+		} else {
+			CompressedData = data
 		}
 		this.stopTiming('encoding')
 		this.sendTimings()
