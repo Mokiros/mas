@@ -7,15 +7,18 @@ class Timing {
 	desc?: string
 	start: [number, number]
 	elapsed: [number, number]
+	stopped: boolean
 
 	constructor(name: string, desc?: string) {
 		this.name = name
 		this.desc = desc
 		this.elapsed = [0, 0]
 		this.start = process.hrtime()
+		this.stopped = false
 	}
 	stop() {
 		this.elapsed = process.hrtime(this.start)
+		this.stopped = true
 	}
 }
 
@@ -50,7 +53,7 @@ export class CustomResponse extends ServerResponse {
 		for (const name in this.Timings) {
 			const t = this.Timings[name]
 			if (t) {
-				if (!t.elapsed) {
+				if (!t.stopped) {
 					t.stop()
 				}
 				const a: string[] = []
