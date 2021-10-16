@@ -178,6 +178,7 @@ async function Preprocessor(req: CustomRequest, res: CustomResponse): Promise<vo
 				if (e instanceof MiddlepointError) {
 					res.sendError(e.code, e.message, e.additionalInfo)
 				} else {
+					console.error(e)
 					res.sendError(500, e.stack ?? e.message)
 				}
 			} else {
