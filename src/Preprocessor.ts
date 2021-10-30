@@ -4,7 +4,7 @@ import { CustomRequest, CustomResponse } from './CustomRequestAndResponse'
 
 type Middleware = (req: CustomRequest, res: CustomResponse) => void | Promise<void>
 
-let point: Middlepoint | undefined
+let first_middlepoint: Middlepoint | undefined
 
 const middlewares: Middleware[] = [
 	(req) => {
@@ -113,19 +113,19 @@ const middlewares: Middleware[] = [
 	},
 
 	async (req, res) => {
-		if (!point) {
+		if (!first_middlepoint) {
 			throw Error("Middlepoint wasn't registered")
 		}
 		const paths = req.fullUrl.pathname.split('/')
 		if (paths[0] === '') {
 			paths.shift()
 		}
-		let middlepoint: Middlepoint = point
+		let middlepoint: Middlepoint | undefined
 		let path: string | undefined
 		let middlepointCounter = 0
-		while ((path = paths.shift())) {
+		while ((path = middlepoint ? paths.shift() : '') !== undefined) {
 			middlepointCounter++
-			const point = middlepoint.getPoint(path)
+			const point = middlepoint ? middlepoint.getPoint(path) : first_middlepoint
 			if (!point) {
 				throw new MiddlepointError('Endpoint not found', 404)
 			}
@@ -190,7 +190,7 @@ async function Preprocessor(req: CustomRequest, res: CustomResponse): Promise<vo
 }
 
 function RegisterMiddlepoint(middlepoint: Middlepoint): void {
-	point = middlepoint
+	first_middlepoint = middlepoint
 }
 
 export { RegisterMiddlepoint }
