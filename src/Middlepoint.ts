@@ -11,28 +11,30 @@ export class MiddlepointError extends Error {
 	}
 }
 
-export type MiddlepointFunction = (
-	data: CustomRequest['params'],
+type Params = Record<string, unknown>
+
+export type MiddlepointFunction<P extends Params = Params> = (
+	data: P,
 	paths: string[],
 	req: CustomRequest,
 	res: CustomResponse,
 ) => unknown | Promise<unknown>
 
-export interface MiddlepointData {
-	[path: string]: Middlepoint
+export interface MiddlepointData<P extends Params = Params> {
+	[path: string]: Middlepoint<P, P>
 }
 
-export interface MiddlepointSettings {
-	[path: string]: Middlepoint | MiddlepointFunction | MiddlepointSettings
+export interface MiddlepointSettings<P extends Params = Params> {
+	[path: string]: Middlepoint<P, P> | MiddlepointFunction<P> | MiddlepointSettings<P>
 }
 
-export class Middlepoint {
-	data?: MiddlepointData
-	func?: MiddlepointFunction
+export class Middlepoint<P extends Params = Params, PP extends Params = Params> {
+	data?: MiddlepointData<P>
+	func?: MiddlepointFunction<PP>
 
-	constructor(func: MiddlepointFunction | MiddlepointSettings)
-	constructor(func: MiddlepointFunction, data: MiddlepointSettings)
-	constructor(func: MiddlepointFunction | MiddlepointSettings, data?: MiddlepointSettings) {
+	constructor(func: MiddlepointFunction<PP> | MiddlepointSettings<P>)
+	constructor(func: MiddlepointFunction<PP>, data: MiddlepointSettings<P>)
+	constructor(func: MiddlepointFunction<PP> | MiddlepointSettings<P>, data?: MiddlepointSettings<P>) {
 		if (typeof func === 'function') {
 			this.func = func
 			if (!data) {
@@ -47,11 +49,11 @@ export class Middlepoint {
 			if (!path || !point) {
 				continue
 			}
-			this.data[path.toLowerCase()] = point instanceof Middlepoint ? point : new Middlepoint(point)
+			this.data[path.toLowerCase()] = point instanceof Middlepoint ? point : new Middlepoint<P,P>(point)
 		}
 	}
 
-	getPoint(path: string): Middlepoint | undefined {
+	getPoint(path: string): Middlepoint<P, P> | undefined {
 		return this.data && this.data[path.toLowerCase()]
 	}
 }
