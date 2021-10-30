@@ -75,7 +75,6 @@ export class CustomResponse extends ServerResponse {
 		const code = this.statusCode || 200
 		this.responseSent = true
 		this.setHeader('Cache-Control', 'no-cache')
-		this.setHeader('Expires', 0)
 		if (!data) {
 			this.sendTimings()
 			this.writeHead(code, this.statusMessage || http.STATUS_CODES[code])
