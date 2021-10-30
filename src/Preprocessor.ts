@@ -51,19 +51,6 @@ const middlewares: Middleware[] = [
 		res.stopTiming('encparse')
 	},
 
-	(req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', '*')
-		res.setHeader('Access-Control-Allow-Methods', 'GET, POST')
-		res.setHeader('Access-Control-Allow-Headers', '*')
-		res.setHeader('Access-Control-Max-Age', '300')
-		if (req.method === 'OPTIONS') {
-			res.setHeader('Content-Length', '0')
-			res.status(204)
-			res.send()
-			return
-		}
-	},
-
 	(req) => {
 		const method = req.method?.toLowerCase()
 		if (!method || (method !== 'get' && method !== 'post' && method !== 'options')) {
