@@ -115,10 +115,7 @@ const middlewares = [
             }
             const timingName = `mp${middlepointCounter}`;
             res.startTiming(timingName, `Middlepoint ${middlepointCounter}`);
-            let response = func(req.params, paths, req, res);
-            if (response instanceof Promise) {
-                response = await response;
-            }
+            const response = await Promise.resolve(func(req.params, paths, req, res));
             if (res.responseSent) {
                 break;
             }
@@ -143,10 +140,7 @@ async function Preprocessor(req, res) {
         try {
             const cur_i = i++;
             res.startTiming(`mw${cur_i}`, 'Middleware ' + cur_i);
-            const p = middleware(req, res);
-            if (p instanceof Promise) {
-                await p;
-            }
+            await Promise.resolve(middleware(req, res));
             res.stopTiming(`mw${cur_i}`);
         }
         catch (e) {
